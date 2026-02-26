@@ -1,3 +1,11 @@
+# these files are too big to store on github uncompressed, we store the .zips and uncompress them when cloned to our local machines
+
+all_musk_posts.csv
+
+musk_quote_tweets.csv
+
+TSLA_1min_market_hours_2016_2025.csv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

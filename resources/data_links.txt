@@ -1,0 +1,7 @@
+
+Tweet Data Sources from this Kaggle dataset
+https://www.kaggle.com/datasets/dadalyndell/elon-musk-tweets-2010-to-2025-march
+
+Tesla Stock Data sources through the Alpaca API, this API is not needed for the project besides the original fetch of the data
+https://docs.alpaca.markets/docs/getting-started
+
