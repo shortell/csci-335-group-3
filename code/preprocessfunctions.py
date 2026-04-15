@@ -8,8 +8,6 @@ import re
 def preprocesstwt(text):
     # Replace URLs
     text = re.sub(r'http\S+|www\.\S+', '[URL]', text)
-    # Remove mentions
-    text = re.sub(r'@(\w+)', r'\1', text)
     # Remove RT marker
     text = re.sub(r'^RT\s+', '', text)
     # Expand hashtags (remove # but keep word)
@@ -21,3 +19,11 @@ def preprocesstwt(text):
     # Lowercase
     text = text.lower()
     return text
+
+# print info and head of a dataframe. just for testing purposes.
+def printinfo(dframe, name):
+    print(name + " raw info: -------------------------------------")
+    dframe.info()
+    print("ex: ===========")
+    print(dframe.head)
+    return
