@@ -34,25 +34,35 @@ PIPELINE_PATH  = BASE_DIR / 'data' / 'cleaned' / 'pipeline_output.csv'
 PLOT_OUT       = BASE_DIR / 'analysis' / 'logistic_regression_results.png'
 
 BASELINE_COL   = 'stock_t0_close'
-LOOKAHEAD_COL  = 'stock_t16_close' # can change to t1, t4, t8, t16, t32 for different lookahead windows
-PCA_COMPONENTS = 100
+LOOKAHEAD_COL  = 'stock_t2_close' # can change to t1, t4, t8, t16 for different lookahead windows
+PCA_COMPONENTS = 400
 
 
 def load_embeddings_with_features():
+    """
+    Creates the feature space with tweet embeddings + engagement features.
+    Feature scaling the engagement features.
+    """
     data       = np.load(EMBEDDING_PATH, allow_pickle=False)
     X_emb      = data['embeddings']
     row_ids    = data['row_ids']
     print(f"Embeddings loaded: {X_emb.shape}")
 
     df         = pd.read_csv(PIPELINE_PATH)
+    # log1p compresses skewed engagement counts (viral tweets can have 500k likes 
+    # vs most having <100) so outliers don't dominate the feature space or PCA
     engagement = np.log1p(df[['likeCount', 'retweetCount', 'replyCount']].fillna(0).to_numpy())
 
-    X = np.hstack([X_emb, engagement])
+    X = np.hstack([X_emb, engagement]) # stacking engagement features with embeddings for model input
     print(f"Feature matrix with engagement: {X.shape}")
     return X, row_ids
 
 
 def build_labels(row_ids: np.ndarray) -> np.ndarray:
+    """
+    Build binary labels based on whether the stock price went up (1) or down (0) 
+    compared to the baseline. Handles missing stock data by assigning NaN labels.
+    """
     df      = pd.read_csv(PIPELINE_PATH)
     labels  = (df[LOOKAHEAD_COL] > df[BASELINE_COL]).astype(float)
     missing = df[LOOKAHEAD_COL].isna() | df[BASELINE_COL].isna()
@@ -61,6 +71,10 @@ def build_labels(row_ids: np.ndarray) -> np.ndarray:
 
 
 def align_and_clean(X, labels):
+    """
+    Aligns the feature matrix with the labels using the row_ids and drops samples with missing labels.
+    Also prints class balance and how many samples were dropped due to missing stock data.
+    """
     mask    = ~np.isnan(labels)
     X_clean = X[mask]
     y_clean = labels[mask].astype(int)
@@ -70,6 +84,14 @@ def align_and_clean(X, labels):
 
 
 def apply_pca(X_train, X_test, n_components):
+    """
+    Applying the PCA dimensionality reduction technique to the embedding features 
+    while keeping the engagement features intact.This helps to reduce the dimensionality
+    of the embedding space while preserving the variance, and prevents the engagement 
+    features from dominating the PCA components.
+
+    notes: while training I increased the PCA components to 400 from 100 to retain more variance and improve performance.
+    """
     if n_components is None:
         return X_train, X_test, None
 
@@ -81,12 +103,16 @@ def apply_pca(X_train, X_test, n_components):
     emb_train_r = pca.fit_transform(emb_train)
     emb_test_r  = pca.transform(emb_test)
 
-    print(f"PCA: {emb_train.shape[1]}d → {n_components}d | "
+    print(f"PCA: {emb_train.shape[1]}d -> {n_components}d | "
           f"variance retained: {pca.explained_variance_ratio_.sum():.2%}")
     return np.hstack([emb_train_r, eng_train]), np.hstack([emb_test_r, eng_test]), pca
 
 
 def train(X_train, y_train):
+    """
+    Trains a Logistic Regression classifier with balanced class weights to handle class imbalance.
+    Also applies feature scaling to the training data using StandardScaler.
+    """
     scaler  = StandardScaler()
     X_train = scaler.fit_transform(X_train)
     model   = LogisticRegression(
@@ -100,6 +126,9 @@ def train(X_train, y_train):
 
 
 def evaluate(model, scaler, X_test, y_test):
+    """
+    Evaluates the trained model on the test set and prints classification metrics.
+    """
     y_pred = model.predict(scaler.transform(X_test))
     print("\n── Classification Report ─────────────────────────")
     print(classification_report(y_test, y_pred, target_names=['Down (0)', 'Up (1)']))
@@ -109,6 +138,12 @@ def evaluate(model, scaler, X_test, y_test):
 
 
 def plot_results(pca, y, y_test, y_pred):
+    """
+    Generates a 3-panel plot showing:
+        1. PCA explained variance curve to justify the choice of components.
+        2. Class balance bar chart to visualize the distribution of up/down samples.
+        3. Confusion matrix heatmap to show true vs predicted labels and overall accuracy.
+    """
     fig = plt.figure(figsize=(16, 5))
     fig.suptitle(
         f"Logistic Regression — TSLA Price Direction from Tweet Embeddings\n"
@@ -118,12 +153,12 @@ def plot_results(pca, y, y_test, y_pred):
     gs = gridspec.GridSpec(1, 3, figure=fig, wspace=0.35)
 
     # PCA explained variance
-    ax1    = fig.add_subplot(gs[0])
+    ax1 = fig.add_subplot(gs[0])
     cumvar = np.cumsum(pca.explained_variance_ratio_) * 100
     ax1.plot(range(1, len(cumvar) + 1), cumvar, color='steelblue', linewidth=1.5)
-    ax1.axhline(cumvar[99], color='tomato', linestyle='--', linewidth=1,
-                label=f'100 components = {cumvar[99]:.1f}%')
-    ax1.axvline(100, color='tomato', linestyle='--', linewidth=1)
+    ax1.axhline(cumvar[PCA_COMPONENTS - 1], color='tomato', linestyle='--', linewidth=1,
+                label=f'{PCA_COMPONENTS} components = {cumvar[PCA_COMPONENTS - 1]:.1f}%')
+    ax1.axvline(PCA_COMPONENTS, color='tomato', linestyle='--', linewidth=1)
     ax1.set_xlabel('Number of PCA Components')
     ax1.set_ylabel('Cumulative Variance Retained (%)')
     ax1.set_title('PCA Explained Variance')
