@@ -4,12 +4,13 @@ import html
 import os
 
 
-# ── helpers ────────────────────────────────────────────────────────────────────
+#  helpers 
 
 URL_RE = re.compile(r"http\S+")
 AT_RE  = re.compile(r"@\w+")          # removes every @handle including mid-text
 WS_RE  = re.compile(r"\s+")
 RT_RE  = re.compile(r"^RT\s+")        # strips leading "RT " marker
+TESLA_RE = re.compile(r"\b(tesla|tsla)\b", re.IGNORECASE)
 
 def _vectorized_clean(series: pd.Series) -> pd.Series:
     """
@@ -42,7 +43,7 @@ def _to_naive_eastern(ts: pd.Series) -> pd.Series:
     return ts
 
 
-# ── pipeline steps ─────────────────────────────────────────────────────────────
+# pipeline steps 
 
 def load_data(posts_path=None, quotes_path=None, stock_path=None):
     base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -79,7 +80,7 @@ def localize_timezones(posts, quotes, stock):
             .dt.tz_convert("America/New_York")
         )
 
-    # Stock: Alpaca delivers tz-naive Eastern wall-clock times; localize directly.
+
     ts = pd.to_datetime(stock["timestamp"])
     if ts.dt.tz is None:
         stock["timestamp"] = ts.dt.tz_localize(
@@ -121,9 +122,10 @@ def filter_to_market_hours_only(posts, quotes, stock):
 
     # Stock: full trading session kept for the 15-min window lookup
     stock  = between_market(stock,  "timestamp",             "09:30", "16:00")
-    # Tweets: capped at 15:45 so every tweet has at least 15 min left in session
-    posts  = between_market(posts,  "createdAt",             "09:30", "15:45")
-    quotes = between_market(quotes, "musk_quote_created_at", "09:30", "15:45")
+    # Tweets: start at 09:45 (ensures ≥15 min pre-tweet baseline in full TSLA data)
+    # and end at 15:45 so every tweet has at least 15 min left in session
+    posts  = between_market(posts,  "createdAt",             "09:45", "15:45")
+    quotes = between_market(quotes, "musk_quote_created_at", "09:45", "15:45")
 
     return (
         posts.reset_index(drop=True),
@@ -210,18 +212,25 @@ def build_clean_text_and_drop_short(posts, quotes, k: int = 15):
     return posts, quotes
 
 
-def enforce_15m_tweet_isolation(posts, quotes):
+def enforce_tweet_isolation(posts, quotes, gap_minutes=5):
     """
-    Keep only tweets that have no other Musk tweet within 15 minutes before
-    or after — ensures each tweet's stock window is clean.
+    Keep only tweets that have no other Musk tweet within a specified 
+    minute window before or after. 
+    
+    A 5-minute gap allows for more data but may result in overlapping 
+    stock price reactions if tweets are sent in a 'thread.'
     """
     posts = posts.sort_values("createdAt").copy()
     t = posts["createdAt"]
+    
+    # Calculate time difference to the previous and next tweet in minutes
     gap_before = t.diff().dt.total_seconds().div(60).fillna(float("inf"))
     gap_after  = t.diff(periods=-1).dt.total_seconds().div(-60).fillna(float("inf"))
 
-    posts  = posts[(gap_before > 15.0) & (gap_after > 15.0)].copy()
+    # Apply the new 5-minute filter
+    posts  = posts[(gap_before > float(gap_minutes)) & (gap_after > float(gap_minutes))].copy()
     quotes = quotes[quotes["musk_tweet_id"].isin(posts["id"])].copy()
+    
     return posts, quotes
 
 
@@ -239,129 +248,83 @@ def align_to_active_trading_days(posts, quotes, stock):
     return posts, quotes, stock
 
 
-# ── output builder ─────────────────────────────────────────────────────────────
+# output builder 
 
 # TSLA candle columns to include for each minute offset
 _STOCK_COLS = ["close", "volume", "trade_count"]
 
-# Minute offsets after the tweet to capture (0 = bar at tweet time as baseline)
-_OFFSETS = [0, 2, 4, 8, 16]
-
+# Update these constants at the top of your output builder section
+_OFFSETS = [1, 2, 4] 
 
 def build_output_csv(posts: pd.DataFrame, quotes: pd.DataFrame, stock: pd.DataFrame) -> pd.DataFrame:
     """
-    Produce one flat CSV row per tweet with:
-
-    Columns (in order):
-      row_id            – unique integer row identifier (for downstream vector matching)
-      tweet_id          – Musk's tweet ID (int64)
-      tweet_timestamp   – tweet time, tz-aware Eastern (ISO string in CSV)
-      cleanText         – fully cleaned text (tweet + quoted/replied-to text if applicable)
-      likeCount         – engagement: likes
-      retweetCount      – engagement: retweets
-      replyCount        – engagement: replies
-      stock_t{2,4,8,16}_timestamp  – 1-min bar timestamp (tz-naive Eastern in CSV)
-      stock_t{2,4,8,16}_close/volume/trade_count
-
-    Stock alignment:
-      The window starts at the FIRST 1-minute bar whose timestamp is >= the
-      tweet time (both compared as tz-naive Eastern wall-clock to avoid any
-      tz-aware vs tz-naive dtype mismatch). Only bars at offsets +2, +4, +8,
-      and +16 minutes are captured. Bars outside the trading session are NaN.
+    Output one row per tweet with:
+      - tweet metadata & mentions_tesla
+      - t0: actual baseline close and volume
+      - t1, t2, t4: binary labels (1 if > t0, else 0)
     """
-    posts  = posts.copy().reset_index(drop=True)
-    quotes = quotes.copy()
-    stock  = stock.copy()
-
-    # ── 1. Guarantee id / createdAt are non-null ──────────────────────────────
-    posts = posts.dropna(subset=["id", "createdAt"]).reset_index(drop=True)
-    posts["id"] = posts["id"].astype("int64")
-
-    # ── 2. Make sure cleanText reflects the combined text for quote tweets ─────
-    if "combinedText" in quotes.columns:
-        quote_text_map = quotes.set_index("musk_tweet_id")["combinedText"]
-    else:
-        quote_text_map = quotes.set_index("musk_tweet_id")["musk_quote_tweet"]
-
-    is_quote = posts["isQuote"] == True
-    posts.loc[is_quote, "cleanText"] = (
-        posts.loc[is_quote, "id"]
-             .map(quote_text_map)
-             .fillna(posts.loc[is_quote, "cleanText"])
-    )
-
-    # ── 3. Build tz-naive Eastern stock index for alignment ───────────────────
-    stock_sorted  = stock.sort_values("timestamp").reset_index(drop=True)
-    # Convert to tz-naive Eastern wall-clock for searchsorted comparison
+    posts = posts.copy().reset_index(drop=True)
+    stock_sorted = stock.sort_values("timestamp").reset_index(drop=True)
+    
+    # Pre-calculate naive timestamps for fast searching
     stock_ts_naive = _to_naive_eastern(stock_sorted["timestamp"])
-
-    # Tweet times as tz-naive Eastern wall-clock (same dtype as stock_ts_naive)
     tweet_ts_naive = _to_naive_eastern(posts["createdAt"])
 
-    # ── 4. For each tweet, find bars at exactly +2, +4, +8, +16 min offsets ───
-    # Anchor on the floored tweet minute so that the displayed timestamps are
-    # always exactly N minutes apart (e.g. tweet=13:21 → t+2=13:23, t+4=13:25).
     stock_rows = []
-    for tweet_time_naive in tweet_ts_naive:
-        tweet_min = tweet_time_naive.floor("min")  # floor to minute boundary
-        row_dict: dict = {}
-        for offset in _OFFSETS:   # t=2, 4, 8, 16 minutes after tweet
-            target = tweet_min + pd.Timedelta(minutes=offset)
-            idx    = stock_ts_naive.searchsorted(target, side="left")
-            prefix = f"stock_t{offset}_"
-            if idx < len(stock_sorted):
-                bar = stock_sorted.iloc[idx]
-                row_dict[prefix + "timestamp"] = bar["timestamp"]
-                for col in _STOCK_COLS:
-                    row_dict[prefix + col] = bar[col]
-            else:
-                row_dict[prefix + "timestamp"] = pd.NaT
-                for col in _STOCK_COLS:
-                    row_dict[prefix + col] = float("nan")
+    for tweet_time in tweet_ts_naive:
+        tweet_min = tweet_time.floor("min")
+        row_dict = {}
+
+        # get t0 baseline the minute of the tweet 
+        idx_0 = stock_ts_naive.searchsorted(tweet_min, side="left")
+        
+        if idx_0 < len(stock_sorted) and stock_ts_naive[idx_0] == tweet_min:
+            t0_bar = stock_sorted.iloc[idx_0]
+            base_price = t0_bar["close"]
+            base_vol = t0_bar["volume"]
+            
+            row_dict["stock_t0_close"] = base_price
+            row_dict["stock_t0_volume"] = base_vol
+            
+            # Calculate Binary Labels for Offsets
+            for offset in _OFFSETS:
+                target_time = tweet_min + pd.Timedelta(minutes=offset)
+                idx_n = stock_ts_naive.searchsorted(target_time, side="left")
+                
+                if idx_n < len(stock_sorted) and stock_ts_naive[idx_n] == target_time:
+                    tn_bar = stock_sorted.iloc[idx_n]
+                    # Binary comparison: 1 if increased, 0 if decreased or flat
+                    row_dict[f"stock_t{offset}_price_up"] = int(tn_bar["close"] > base_price)
+                    row_dict[f"stock_t{offset}_volume_up"] = int(tn_bar["volume"] > base_vol)
+                else:
+                    row_dict[f"stock_t{offset}_price_up"] = float("nan")
+                    row_dict[f"stock_t{offset}_volume_up"] = float("nan")
+        else:
+
+            row_dict["stock_t0_close"] = float("nan")
+            row_dict["stock_t0_volume"] = float("nan")
+
         stock_rows.append(row_dict)
 
+    # Combine metadata with the new stock features
     stock_df = pd.DataFrame(stock_rows, index=posts.index)
-
-    # ── 5. Assemble final DataFrame with slim metadata only ───────────────────
+    
     out = pd.DataFrame({
-        "row_id":          range(len(posts)),        # unique int for vector matching
+        "row_id":          range(len(posts)),
         "tweet_id":        posts["id"].values,
         "tweet_timestamp": posts["createdAt"].values,
         "cleanText":       posts["cleanText"].values,
-        "likeCount":       posts.get("likeCount",    pd.Series(dtype=float)).reindex(posts.index).values,
-        "retweetCount":    posts.get("retweetCount", pd.Series(dtype=float)).reindex(posts.index).values,
-        "replyCount":      posts.get("replyCount",   pd.Series(dtype=float)).reindex(posts.index).values,
+        "mentions_tesla":  (posts["cleanText"].str.contains(TESLA_RE, na=False)).astype(int),
     })
 
     result = pd.concat([out, stock_df.reset_index(drop=True)], axis=1)
-
-    # ── 6. Final integrity check: drop rows missing any required field ────────
-    required = ["tweet_id", "tweet_timestamp", "likeCount", "retweetCount", "replyCount"]
-    result = result.dropna(subset=required).reset_index(drop=True)
-    # Re-assign row_id to be sequential after any final drops
+    
+    result = result.dropna().reset_index(drop=True)
     result["row_id"] = range(len(result))
-
-    # ── 7. Normalize all timestamps: tz-naive Eastern wall-clock, minute precision
-    # tweet_timestamp loses its tz via numpy .values (becomes naive UTC); stock
-    # timestamps are already tz-aware Eastern. Both are converted to Eastern then
-    # stripped of tz info so every column is a plain YYYY-MM-DD HH:MM string —
-    # no offset suffix needed since all data is already filtered to market hours.
-    ts_cols = ["tweet_timestamp"] + [f"stock_t{o}_timestamp" for o in _OFFSETS]
-    for col in ts_cols:
-        if col not in result.columns:
-            continue
-        s = pd.to_datetime(result[col])
-        if s.dt.tz is None:
-            # tz was stripped by numpy — the underlying value is UTC
-            s = s.dt.tz_localize("UTC").dt.tz_convert("America/New_York")
-        else:
-            s = s.dt.tz_convert("America/New_York")
-        result[col] = s.dt.floor("min").dt.tz_localize(None)  # drop tz offset
-
+    
     return result
 
 
-# ── main ───────────────────────────────────────────────────────────────────────
 
 def run_pipeline(k: int = 15, save_csv: bool = True):
     posts, quotes, stock = load_data()
@@ -371,7 +334,7 @@ def run_pipeline(k: int = 15, save_csv: bool = True):
     posts, quotes, stock = filter_to_market_hours_only(posts, quotes, stock)
     posts, quotes        = filter_urls(posts, quotes)
     posts, quotes        = build_clean_text_and_drop_short(posts, quotes, k=k)
-    posts, quotes        = enforce_15m_tweet_isolation(posts, quotes)
+    posts, quotes        = enforce_tweet_isolation(posts, quotes)
     posts, quotes, stock = align_to_active_trading_days(posts, quotes, stock)
 
     n_samples = len(posts)
