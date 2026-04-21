@@ -11,7 +11,7 @@ IF INVESTIGATING THIS FILE READ THIS FIRST
 The vectors have already been created and are stored in the data/vector_embeddings/open_ai directory.
 This script is here for reference and can be used to create new vectors if needed.
 But since the vectors are already created, this script should have to be run again.
-Because it costs money to create vectors. A very small amount less than a dollar but repeated runs will add up.
+Because it costs money to create vectors. A very small amount only a few cents but repeated runs will add up.
 
 If you do want to run this script, make sure you have a valid OPENAI_API_KEY in your .env file.
 
@@ -55,7 +55,7 @@ def embed_tweets_open_ai(model: str = 'text-embedding-3-small'):
     )
     size_mb = out_file.stat().st_size / 1e6
     print(f"Saved {len(all_embeddings)} embeddings ({embeddings_array.shape[1]}d) "
-          f"→ '{out_file}' ({size_mb:.1f} MB)")
+          f"'{out_file}' ({size_mb:.1f} MB)")
 
 
 def embed_tweets_local(model_name: str = "all-MiniLM-L6-v2"):
@@ -99,7 +99,7 @@ def embed_tweets_local(model_name: str = "all-MiniLM-L6-v2"):
 
     size_mb = out_file.stat().st_size / 1e6
     print(f"Saved {embeddings.shape[0]} embeddings ({embeddings.shape[1]}d) "
-          f"→ '{out_file}' ({size_mb:.1f} MB)")
+          f" '{out_file}' ({size_mb:.1f} MB)")
 
 
 if __name__ == '__main__':
