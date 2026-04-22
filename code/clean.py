@@ -110,6 +110,8 @@ def run_pipeline(k=10, include_replies=True, save_csv=True):
         "is_reply": posts["isReply"].fillna(False).astype(int),
         "is_quote": posts["isQuote"].fillna(False).astype(int),
         "is_retweet": posts["isRetweet"].fillna(False).astype(int),
+        "hour": posts["createdAt"].dt.hour,
+        "day_of_week": posts["createdAt"].dt.dayofweek,
         "positive": 0.0, 
         "negative": 0.0, 
         "neutral": 0.0
