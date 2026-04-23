@@ -11,7 +11,7 @@ QUOTES_PATH = "data/musk_quote_tweets.csv"
 STOCK_PATH  = "data/TSLA_1min_market_hours_UTC.csv"
 
 # --- 2. REGEX & SETTINGS ---
-EPS = 1e-8  
+EPS = 1e-8
 URL_RE = re.compile(r"http\S+")
 AT_RE  = re.compile(r"@\w+")
 WS_RE  = re.compile(r"\s+")
@@ -70,7 +70,7 @@ def run_pipeline(k=10, include_replies=True, save_csv=True):
     posts = posts.sort_values("createdAt")
     diff_prev = posts["createdAt"].diff().dt.total_seconds() / 60
     diff_next = posts["createdAt"].diff(-1).dt.total_seconds() / -60
-    posts = posts[(diff_prev.fillna(999) > 5) & (diff_next.fillna(999) > 5)]
+    posts = posts[(diff_prev.fillna(999) > 10) & (diff_next.fillna(999) > 5)]
 
     # E. Feature Engineering (Z-Scores & CV)
     tweet_ts = posts["createdAt"].dt.tz_localize(None)
@@ -82,22 +82,29 @@ def run_pipeline(k=10, include_replies=True, save_csv=True):
         t_min = t_time.floor("min")
         idx = stock_ts.searchsorted(t_min)
         
-        if 5 <= idx < (len(stock_data) - 5) and stock_ts[idx] == t_min:
-            pre = stock_data.iloc[idx-5 : idx]
+        if 10 <= idx < (len(stock_data) - 5) and stock_ts[idx] == t_min:
+            pre = stock_data.iloc[idx-10 : idx]
             post = stock_data.iloc[idx+1 : idx+6]
-            
+
             m_p, s_p = pre["close"].mean(), pre["close"].std()
             m_v, s_v = pre["volume"].mean(), pre["volume"].std()
-            
+
+            # --- Existing features ---
+            close_range = pre["close"].max() - pre["close"].min()
+
             row = {
                 "close_delta_z": (pre["close"].iloc[-1] - pre["close"].iloc[0]) / (s_p + EPS),
                 "volume_delta_z": (pre["volume"].iloc[-1] - pre["volume"].iloc[0]) / (s_v + EPS),
                 "price_cv": s_p / (m_p + EPS),
-                "volume_cv": s_v / (m_v + EPS)
+                "volume_cv": s_v / (m_v + EPS),
+
+                # --- New features ---
+                # Where the last bar's close sits within the 10-bar high/low range
+                "close_position": (pre["close"].iloc[-1] - pre["close"].min()) / (close_range + EPS),
+
+                # --- Target: highest z-score of close in the next 5 minutes ---
+                "max_z_next5": ((post["close"] - m_p) / (s_p + EPS)).max(),
             }
-            for i in range(1, 6):
-                row[f"close_t{i}_z"] = (post["close"].iloc[i-1] - m_p) / (s_p + EPS)
-                row[f"volume_t{i}_z"] = (post["volume"].iloc[i-1] - m_v) / (s_v + EPS)
             final_rows.append(row)
         else:
             final_rows.append({k: np.nan for k in ["close_delta_z"]})
@@ -106,17 +113,20 @@ def run_pipeline(k=10, include_replies=True, save_csv=True):
     features_df = pd.DataFrame(final_rows, index=posts.index)
     meta_df = pd.DataFrame({
         "whole_text": posts["whole_text"],
+        "tweet_time": posts["createdAt"].dt.floor("min").dt.tz_localize(None),  # UTC minute of tweet, for price lookup
         "mentions_tesla": posts["whole_text"].str.contains(TSLA_RE).astype(int),
         "is_reply": posts["isReply"].fillna(False).astype(int),
         "is_quote": posts["isQuote"].fillna(False).astype(int),
         "is_retweet": posts["isRetweet"].fillna(False).astype(int),
+        # "hour": posts["createdAt"].dt.hour,
+        # "day_of_week": posts["createdAt"].dt.dayofweek,
         "positive": 0.0, 
         "negative": 0.0, 
         "neutral": 0.0
     })
 
     # Merge, round to 3 decimal places, and remove incomplete windows
-    result = pd.concat([meta_df, features_df], axis=1).dropna(subset=["close_delta_z"])
+    result = pd.concat([meta_df, features_df], axis=1).dropna(subset=["close_delta_z", "max_z_next5"])
     result = result.round(3)
 
     if save_csv:

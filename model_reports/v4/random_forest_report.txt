@@ -1,0 +1,97 @@
+Random Forest Models Report (Binary Classification)
+=================================================
+
+Target: close_t3_z
+Threshold: > 0.5 (Buy 1), <= 0.5 (Don't Buy 0)
+----------------------------------------
+Total Valid Samples: 2953
+Testing 48 hyperparameter combinations...
+
+MODELS SORTED BY BUY PRECISION (DESCENDING):
+--------------------------------------------------
+Rank 1 | Prec(Buy): 0.6301 | F1: 0.6188 | Acc: 0.6768 | Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 2 | Prec(Buy): 0.6280 | F1: 0.6218 | Acc: 0.6768 | Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 3 | Prec(Buy): 0.6272 | F1: 0.5921 | Acc: 0.6667 | Params: {'class_weight': 'balanced', 'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 4 | Prec(Buy): 0.6261 | F1: 0.6045 | Acc: 0.6701 | Params: {'class_weight': 'balanced', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 5 | Prec(Buy): 0.6204 | F1: 0.6427 | Acc: 0.6802 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 6 | Prec(Buy): 0.6185 | F1: 0.6111 | Acc: 0.6684 | Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 7 | Prec(Buy): 0.6180 | F1: 0.5902 | Acc: 0.6616 | Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 8 | Prec(Buy): 0.6178 | F1: 0.5792 | Acc: 0.6582 | Params: {'class_weight': 'balanced', 'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 9 | Prec(Buy): 0.6170 | F1: 0.6480 | Acc: 0.6802 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 10 | Prec(Buy): 0.6162 | F1: 0.6350 | Acc: 0.6751 | Params: {'class_weight': 'balanced', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 11 | Prec(Buy): 0.6141 | F1: 0.5968 | Acc: 0.6616 | Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 12 | Prec(Buy): 0.6121 | F1: 0.6418 | Acc: 0.6751 | Params: {'class_weight': 'balanced', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 13 | Prec(Buy): 0.6109 | F1: 0.6340 | Acc: 0.6717 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 14 | Prec(Buy): 0.6079 | F1: 0.6341 | Acc: 0.6701 | Params: {'class_weight': 'balanced', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 15 | Prec(Buy): 0.6066 | F1: 0.5932 | Acc: 0.6565 | Params: {'class_weight': 'balanced', 'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 16 | Prec(Buy): 0.6064 | F1: 0.5992 | Acc: 0.6582 | Params: {'class_weight': 'balanced', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 17 | Prec(Buy): 0.6057 | F1: 0.5948 | Acc: 0.6565 | Params: {'class_weight': 'balanced', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 18 | Prec(Buy): 0.6053 | F1: 0.6583 | Acc: 0.6768 | Params: {'class_weight': 'balanced', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 19 | Prec(Buy): 0.6049 | F1: 0.6396 | Acc: 0.6701 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 20 | Prec(Buy): 0.6046 | F1: 0.6595 | Acc: 0.6768 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 21 | Prec(Buy): 0.6034 | F1: 0.6473 | Acc: 0.6717 | Params: {'class_weight': 'balanced', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 22 | Prec(Buy): 0.6029 | F1: 0.6278 | Acc: 0.6650 | Params: {'class_weight': 'balanced', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 23 | Prec(Buy): 0.6022 | F1: 0.6238 | Acc: 0.6633 | Params: {'class_weight': 'balanced', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 24 | Prec(Buy): 0.6022 | F1: 0.6292 | Acc: 0.6650 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 25 | Prec(Buy): 0.6013 | F1: 0.6560 | Acc: 0.6734 | Params: {'class_weight': 'balanced', 'max_depth': 5, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 26 | Prec(Buy): 0.6008 | F1: 0.5863 | Acc: 0.6514 | Params: {'class_weight': 'balanced', 'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 27 | Prec(Buy): 0.6007 | F1: 0.6523 | Acc: 0.6717 | Params: {'class_weight': 'balanced', 'max_depth': 5, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 28 | Prec(Buy): 0.6007 | F1: 0.6523 | Acc: 0.6717 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 29 | Prec(Buy): 0.6000 | F1: 0.6536 | Acc: 0.6717 | Params: {'class_weight': 'balanced', 'max_depth': 5, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 30 | Prec(Buy): 0.6000 | F1: 0.6280 | Acc: 0.6633 | Params: {'class_weight': 'balanced', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 31 | Prec(Buy): 0.6000 | F1: 0.6226 | Acc: 0.6616 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 32 | Prec(Buy): 0.5993 | F1: 0.6548 | Acc: 0.6717 | Params: {'class_weight': 'balanced', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 33 | Prec(Buy): 0.5993 | F1: 0.6548 | Acc: 0.6717 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 100}
+Rank 34 | Prec(Buy): 0.5987 | F1: 0.6560 | Acc: 0.6717 | Params: {'class_weight': 'balanced', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 35 | Prec(Buy): 0.5987 | F1: 0.6512 | Acc: 0.6701 | Params: {'class_weight': 'balanced', 'max_depth': 5, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 36 | Prec(Buy): 0.5984 | F1: 0.5913 | Acc: 0.6514 | Params: {'class_weight': 'balanced', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 37 | Prec(Buy): 0.5983 | F1: 0.5661 | Acc: 0.6447 | Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 38 | Prec(Buy): 0.5980 | F1: 0.6475 | Acc: 0.6684 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 39 | Prec(Buy): 0.5976 | F1: 0.5868 | Acc: 0.6497 | Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 40 | Prec(Buy): 0.5975 | F1: 0.5743 | Acc: 0.6464 | Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 41 | Prec(Buy): 0.5974 | F1: 0.6536 | Acc: 0.6701 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 42 | Prec(Buy): 0.5967 | F1: 0.6500 | Acc: 0.6684 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 43 | Prec(Buy): 0.5965 | F1: 0.6296 | Acc: 0.6616 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 100}
+Rank 44 | Prec(Buy): 0.5957 | F1: 0.6257 | Acc: 0.6599 | Params: {'class_weight': 'balanced', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 45 | Prec(Buy): 0.5955 | F1: 0.6525 | Acc: 0.6684 | Params: {'class_weight': 'balanced', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 46 | Prec(Buy): 0.5942 | F1: 0.6549 | Acc: 0.6684 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 50}
+Rank 47 | Prec(Buy): 0.5942 | F1: 0.6501 | Acc: 0.6667 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 50}
+Rank 48 | Prec(Buy): 0.5899 | F1: 0.6154 | Acc: 0.6531 | Params: {'class_weight': 'balanced_subsample', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 50}
+
+========================================================
+TOP 3 MODELS BY BUY PRECISION:
+--------------------------------------------------
+1. Prec: 0.6301 | F1: 0.6188 | Acc: 0.6768
+Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 100}
+Best Precision Classification Report:
+              precision    recall  f1-score   support
+
+         buy       0.63      0.61      0.62       255
+    dont_buy       0.71      0.73      0.72       336
+
+    accuracy                           0.68       591
+   macro avg       0.67      0.67      0.67       591
+weighted avg       0.68      0.68      0.68       591
+
+2. Prec: 0.6280 | F1: 0.6218 | Acc: 0.6768
+Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 100}
+3. Prec: 0.6272 | F1: 0.5921 | Acc: 0.6667
+Params: {'class_weight': 'balanced', 'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+========================================================
+TOP 3 MODELS BY F1 SCORE:
+--------------------------------------------------
+1. F1: 0.6595 | Prec: 0.6046 | Acc: 0.6768
+Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+2. F1: 0.6583 | Prec: 0.6053 | Acc: 0.6768
+Params: {'class_weight': 'balanced', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+3. F1: 0.6560 | Prec: 0.5987 | Acc: 0.6717
+Params: {'class_weight': 'balanced', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 100}
+========================================================
+TOP 3 MODELS BY ACCURACY:
+--------------------------------------------------
+1. Acc: 0.6802 | Prec: 0.6204 | F1: 0.6427
+Params: {'class_weight': 'balanced_subsample', 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+2. Acc: 0.6802 | Prec: 0.6170 | F1: 0.6480
+Params: {'class_weight': 'balanced_subsample', 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 100}
+3. Acc: 0.6768 | Prec: 0.6301 | F1: 0.6188
+Params: {'class_weight': 'balanced_subsample', 'max_depth': None, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 100}

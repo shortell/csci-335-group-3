@@ -1,0 +1,60 @@
+SVM Report
+=======================================================
+Target: max_z_next5  |  Threshold > 1.5
+Total: 2438  |  Buy: 905 (37.1%)  |  No-Buy: 1533 (62.9%)
+Train: 1560  |  Val: 390  |  Test: 488
+Features (12): mentions_tesla, is_reply, is_quote, is_retweet, positive, negative, neutral, close_delta_z, volume_delta_z, price_cv, volume_cv, close_position
+
+[ Best Balanced Accuracy ]
+Params: {'C': 0.1, 'class_weight': None, 'gamma': 0.01, 'kernel': 'rbf'}
+Metric                Train      Val     Test
+---------------------------------------------
+Balanced Acc         0.7143   0.7045   0.7142
+F1 (buy)             0.6459   0.6337   0.6500
+Precision (buy)      0.6147   0.6076   0.5936
+
+Classification Report (Test):
+              precision    recall  f1-score   support
+
+         buy       0.59      0.72      0.65       181
+    dont_buy       0.81      0.71      0.76       307
+
+    accuracy                           0.71       488
+   macro avg       0.70      0.71      0.70       488
+weighted avg       0.73      0.71      0.72       488
+
+[ Best F1 (buy) ]
+Params: {'C': 0.1, 'class_weight': None, 'gamma': 0.01, 'kernel': 'rbf'}
+Metric                Train      Val     Test
+---------------------------------------------
+Balanced Acc         0.7143   0.7045   0.7142
+F1 (buy)             0.6459   0.6337   0.6500
+Precision (buy)      0.6147   0.6076   0.5936
+
+Classification Report (Test):
+              precision    recall  f1-score   support
+
+         buy       0.59      0.72      0.65       181
+    dont_buy       0.81      0.71      0.76       307
+
+    accuracy                           0.71       488
+   macro avg       0.70      0.71      0.70       488
+weighted avg       0.73      0.71      0.72       488
+
+[ Best Composite (Bal+F1+Prec) ]
+Params: {'C': 1, 'class_weight': 'balanced', 'gamma': 'scale', 'kernel': 'rbf'}  (prob threshold: 0.50)
+Metric                Train      Val     Test
+---------------------------------------------
+Balanced Acc         0.7187   0.7022   0.7118
+F1 (buy)             0.6473   0.6250   0.6443
+Precision (buy)      0.6402   0.6294   0.6039
+
+Classification Report (Test):
+              precision    recall  f1-score   support
+
+         buy       0.60      0.69      0.64       181
+    dont_buy       0.80      0.73      0.77       307
+
+    accuracy                           0.72       488
+   macro avg       0.70      0.71      0.70       488
+weighted avg       0.73      0.72      0.72       488

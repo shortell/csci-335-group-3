@@ -1,0 +1,60 @@
+Random Forest Report
+=======================================================
+Target: max_z_next5  |  Threshold > 1.5
+Total: 2438  |  Buy: 905 (37.1%)  |  No-Buy: 1533 (62.9%)
+Train: 1560  |  Val: 390  |  Test: 488
+Features (14): mentions_tesla, is_reply, is_quote, is_retweet, positive, negative, neutral, close_delta_z, volume_delta_z, price_cv, volume_cv, close_position, up_bar_volume_ratio, bullish_bar_ratio
+
+[ Best Balanced Accuracy ]
+Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+Metric                Train      Val     Test
+---------------------------------------------
+Balanced Acc         0.7635   0.7186   0.7170
+F1 (buy)             0.7077   0.6563   0.6606
+Precision (buy)      0.6263   0.5955   0.5647
+
+Classification Report (Test):
+              precision    recall  f1-score   support
+
+         buy       0.56      0.80      0.66       181
+    dont_buy       0.84      0.64      0.73       307
+
+    accuracy                           0.70       488
+   macro avg       0.70      0.72      0.69       488
+weighted avg       0.74      0.70      0.70       488
+
+[ Best F1 (buy) ]
+Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+Metric                Train      Val     Test
+---------------------------------------------
+Balanced Acc         0.7635   0.7186   0.7170
+F1 (buy)             0.7077   0.6563   0.6606
+Precision (buy)      0.6263   0.5955   0.5647
+
+Classification Report (Test):
+              precision    recall  f1-score   support
+
+         buy       0.56      0.80      0.66       181
+    dont_buy       0.84      0.64      0.73       307
+
+    accuracy                           0.70       488
+   macro avg       0.70      0.72      0.69       488
+weighted avg       0.74      0.70      0.70       488
+
+[ Best Composite (Bal+F1+Prec) ]
+Params: {'class_weight': 'balanced_subsample', 'max_depth': 5, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}  (prob threshold: 0.50)
+Metric                Train      Val     Test
+---------------------------------------------
+Balanced Acc         0.7635   0.7186   0.7170
+F1 (buy)             0.7077   0.6563   0.6606
+Precision (buy)      0.6263   0.5955   0.5647
+
+Classification Report (Test):
+              precision    recall  f1-score   support
+
+         buy       0.56      0.80      0.66       181
+    dont_buy       0.84      0.64      0.73       307
+
+    accuracy                           0.70       488
+   macro avg       0.70      0.72      0.69       488
+weighted avg       0.74      0.70      0.70       488
