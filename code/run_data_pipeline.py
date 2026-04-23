@@ -1,15 +1,15 @@
 import sys
 import os
 
-# Add root directory to python path to allow imports from 'code' module
-sys.path.append(os.path.abspath('.'))
+# Add the code/ directory to the path so sibling modules resolve correctly
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from code.clean import run_pipeline
-from code.tweet_sentiment import run_sentiment_pipeline
+from clean import run_pipeline
+from tweet_sentiment import run_sentiment_pipeline
 
 def main():
     # Pipeline configuration
-    K_VALUE = 9
+    K_VALUE = 10
     INCLUDE_REPLIES = True
     
     print(f"============================================================")
@@ -40,7 +40,8 @@ def main():
     print("\n============================================================")
     print(" PIPELINE COMPLETE!")
     print(f" Your final, fully-featured dataset is ready at:")
-    print(f" data/final/musk_events_k{K_VALUE}_replies_{INCLUDE_REPLIES}.csv")
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    print(f" data/final/musk_events_k{K_VALUE}_replies_{INCLUDE_REPLIES}.csv (relative to {root})")
     print("============================================================")
 
 if __name__ == "__main__":

@@ -1,0 +1,42 @@
+ENSEMBLE MODELS REPORT (Binary Classification)
+========================================================
+Target: close_t3_z  |  Threshold: > 0.5
+Features: Scaled via MinMaxScaler. XGBoost target encoded directly as 1 and 0.
+Base Models Included: Logistic Regression, SVM, Random Forest, MLP, XGBoost
+Note: Models instantiated using the exact #1 configurations found in their grid searches.
+========================================================
+
+--- 1. SOFT VOTING CLASSIFIER ---
+Buy Precision: 0.6172
+Accuracy:      0.6672
+F1 Score:      0.6100
+Predicted Buys: 256 (Out of 607 total cases)
+
+Voting Classification Report:
+               precision    recall  f1-score   support
+
+Don't Buy (0)       0.70      0.72      0.71       345
+      Buy (1)       0.62      0.60      0.61       262
+
+     accuracy                           0.67       607
+    macro avg       0.66      0.66      0.66       607
+ weighted avg       0.67      0.67      0.67       607
+
+
+--------------------------------------------------------------------------------
+
+--- 2. STACKING CLASSIFIER (PASSTHROUGH=TRUE) ---
+Buy Precision: 0.6331
+Accuracy:      0.6771
+F1 Score:      0.6157
+Predicted Buys: 248 (Out of 607 total cases)
+
+Stacking Classification Report:
+               precision    recall  f1-score   support
+
+Don't Buy (0)       0.71      0.74      0.72       345
+      Buy (1)       0.63      0.60      0.62       262
+
+     accuracy                           0.68       607
+    macro avg       0.67      0.67      0.67       607
+ weighted avg       0.68      0.68      0.68       607
