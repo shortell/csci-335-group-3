@@ -1,0 +1,49 @@
+Multi-Layer Perceptron (MLP) Models Report (Binary Classification)
+==================================================================
+
+Target: close_t5_z
+Threshold: > 0.75 (Buy 1), <= 0.75 (Don't Buy 0)
+----------------------------------------
+Total Valid Samples: 2953
+Testing 6 hyperparameter combinations...
+
+MODELS SORTED BY F1-SCORE (DESCENDING):
+----------------------------------------
+Rank 1 | F1: 0.4844 | Acc: 0.6074 | Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (11, 5), 'learning_rate': 'constant'}
+Rank 2 | F1: 0.4810 | Acc: 0.6311 | Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (11,), 'learning_rate': 'constant'}
+Rank 3 | F1: 0.4654 | Acc: 0.6074 | Params: {'activation': 'tanh', 'alpha': 0.001, 'hidden_layer_sizes': (8, 4), 'learning_rate': 'constant'}
+Rank 4 | F1: 0.4651 | Acc: 0.6108 | Params: {'activation': 'tanh', 'alpha': 0.001, 'hidden_layer_sizes': (11,), 'learning_rate': 'constant'}
+Rank 5 | F1: 0.4649 | Acc: 0.6261 | Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (8, 4), 'learning_rate': 'constant'}
+Rank 6 | F1: 0.4471 | Acc: 0.6024 | Params: {'activation': 'tanh', 'alpha': 0.001, 'hidden_layer_sizes': (11, 5), 'learning_rate': 'constant'}
+
+========================================================
+BEST MODEL BY F1-SCORE:
+Parameters: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (11, 5), 'learning_rate': 'constant'}
+Accuracy: 0.6074
+F1: 0.4844
+Classification Report:
+              precision    recall  f1-score   support
+
+         buy       0.51      0.46      0.48       237
+    dont_buy       0.66      0.71      0.68       354
+
+    accuracy                           0.61       591
+   macro avg       0.59      0.58      0.58       591
+weighted avg       0.60      0.61      0.60       591
+
+========================================================
+BEST MODEL BY ACCURACY:
+----------------------------------------
+Parameters: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (11,), 'learning_rate': 'constant'}
+F1-Score: 0.4810
+Accuracy: 0.6311
+Classification Report:
+              precision    recall  f1-score   support
+
+         buy       0.55      0.43      0.48       237
+    dont_buy       0.67      0.77      0.71       354
+
+    accuracy                           0.63       591
+   macro avg       0.61      0.60      0.60       591
+weighted avg       0.62      0.63      0.62       591
+

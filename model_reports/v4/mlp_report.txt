@@ -1,0 +1,55 @@
+Multi-Layer Perceptron (MLP) Models Report (Binary Classification)
+==================================================================
+
+Target: close_t3_z
+Threshold: > 0.5 (Buy 1), <= 0.5 (Don't Buy 0)
+----------------------------------------
+Total Valid Samples: 2953
+Testing 6 hyperparameter combinations...
+
+MODELS SORTED BY BUY PRECISION (DESCENDING):
+--------------------------------------------------
+Rank 1 | Prec(Buy): 0.6456 | F1: 0.6220 | Acc: 0.6853 | Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (8, 4), 'learning_rate': 'constant'}
+Rank 2 | Prec(Buy): 0.6432 | F1: 0.6250 | Acc: 0.6853 | Params: {'activation': 'tanh', 'alpha': 0.001, 'hidden_layer_sizes': (8, 4), 'learning_rate': 'constant'}
+Rank 3 | Prec(Buy): 0.6349 | F1: 0.6169 | Acc: 0.6785 | Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (11,), 'learning_rate': 'constant'}
+Rank 4 | Prec(Buy): 0.6281 | F1: 0.6117 | Acc: 0.6734 | Params: {'activation': 'tanh', 'alpha': 0.001, 'hidden_layer_sizes': (11,), 'learning_rate': 'constant'}
+Rank 5 | Prec(Buy): 0.6270 | F1: 0.6233 | Acc: 0.6768 | Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (11, 5), 'learning_rate': 'constant'}
+Rank 6 | Prec(Buy): 0.6163 | F1: 0.6199 | Acc: 0.6701 | Params: {'activation': 'tanh', 'alpha': 0.001, 'hidden_layer_sizes': (11, 5), 'learning_rate': 'constant'}
+
+========================================================
+TOP 3 MODELS BY BUY PRECISION:
+--------------------------------------------------
+1. Prec: 0.6456 | F1: 0.6220 | Acc: 0.6853
+Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (8, 4), 'learning_rate': 'constant'}
+Best Precision Classification Report:
+              precision    recall  f1-score   support
+
+         buy       0.65      0.60      0.62       255
+    dont_buy       0.71      0.75      0.73       336
+
+    accuracy                           0.69       591
+   macro avg       0.68      0.68      0.68       591
+weighted avg       0.68      0.69      0.68       591
+
+2. Prec: 0.6432 | F1: 0.6250 | Acc: 0.6853
+Params: {'activation': 'tanh', 'alpha': 0.001, 'hidden_layer_sizes': (8, 4), 'learning_rate': 'constant'}
+3. Prec: 0.6349 | F1: 0.6169 | Acc: 0.6785
+Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (11,), 'learning_rate': 'constant'}
+========================================================
+TOP 3 MODELS BY F1 SCORE:
+--------------------------------------------------
+1. F1: 0.6250 | Prec: 0.6432 | Acc: 0.6853
+Params: {'activation': 'tanh', 'alpha': 0.001, 'hidden_layer_sizes': (8, 4), 'learning_rate': 'constant'}
+2. F1: 0.6233 | Prec: 0.6270 | Acc: 0.6768
+Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (11, 5), 'learning_rate': 'constant'}
+3. F1: 0.6220 | Prec: 0.6456 | Acc: 0.6853
+Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (8, 4), 'learning_rate': 'constant'}
+========================================================
+TOP 3 MODELS BY ACCURACY:
+--------------------------------------------------
+1. Acc: 0.6853 | Prec: 0.6456 | F1: 0.6220
+Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (8, 4), 'learning_rate': 'constant'}
+2. Acc: 0.6853 | Prec: 0.6432 | F1: 0.6250
+Params: {'activation': 'tanh', 'alpha': 0.001, 'hidden_layer_sizes': (8, 4), 'learning_rate': 'constant'}
+3. Acc: 0.6785 | Prec: 0.6349 | F1: 0.6169
+Params: {'activation': 'relu', 'alpha': 0.001, 'hidden_layer_sizes': (11,), 'learning_rate': 'constant'}
