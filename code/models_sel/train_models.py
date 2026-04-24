@@ -2,7 +2,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 import model_functions as mf
 
-
 # code copied originally from jackson's
 # mainly because we were going for similar things
 # seperated a lot of the repeated code though
@@ -31,10 +30,10 @@ if __name__ == '__main__':
                         hidden_layer_sizes=(1000,100),
                         activation='relu',
                         solver='adam',
-                        max_iter=1000,
+                        max_iter=100,
                         random_state= RANDOMSTATE
                         )
-    
+
 
 
     model, scaler         = mf.train(X_train, y_train,nn)

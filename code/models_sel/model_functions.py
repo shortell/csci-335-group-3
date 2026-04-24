@@ -4,6 +4,8 @@ Made so it's all here instead and not just repeated with every train .py file
 Edits: Includes my sentiment thing in load_embeddings_with_vectors or smth
 
 Removed engagement bc.. idk where it went
+
+Added sampleweight to even things out a bit
 """
 
 from sklearn.preprocessing import StandardScaler
@@ -15,6 +17,7 @@ import numpy as np
 import pandas as pd
 import os
 from pathlib import Path
+from sklearn.utils.class_weight import compute_sample_weight
 
 import sentimenter as sm
 
@@ -28,8 +31,8 @@ PIPELINE_PATH  = BASE_DIR / 'data' / 'final' / 'musk_events_k10_replies_True.csv
 
 PLOT_OUT       = Path("analysis/netresults.png")
 
-BASELINE_COL   = 'stock_t0_close'
-LOOKAHEAD_COL  = 'stock_t2_close' # can change to t1, t4, t8, t16 for different lookahead windows
+BASELINE_COL   = 'close_delta_z'
+LOOKAHEAD_COL  = 'max_z_next5' # can change to t1, t4, t8, t16 for different lookahead windows
 
 RANDOMSTATE = 35
 
@@ -40,9 +43,8 @@ def load_embeddings_with_features():
     """
 
     df = pd.read_csv(PIPELINE_PATH)
-    print([c for c in df.columns if 'stock' in c.lower()])
+    print(df.columns.tolist())
 
-    
     data       = np.load(EMBEDDING_PATH, allow_pickle=False)
     X_emb      = data['embeddings_pca']
     row_ids    = data['row_ids']
@@ -54,6 +56,9 @@ def load_embeddings_with_features():
     # vs most having <100) so outliers don't dominate the feature space or PCA
     # engagement = np.log1p(df[['likeCount', 'retweetCount', 'replyCount']].fillna(0).to_numpy())
 
+    #drop existing sentiments
+    df = df.drop(columns=['positive', 'negative', 'neutral'])
+
     # guessed sentiments, using textblob for polarity and vader for pos/neu/neg sentiments + better social media support
     sentiments = sm.sentimentalize(df)
 
@@ -62,14 +67,12 @@ def load_embeddings_with_features():
     return X, row_ids
 
 
+
 def build_labels(row_ids: np.ndarray) -> np.ndarray:
-    """
-    Build binary labels based on whether the stock price went up (1) or down (0) 
-    compared to the baseline. Handles missing stock data by assigning NaN labels.
-    """
-    df      = pd.read_csv(PIPELINE_PATH)
-    labels  = (df[LOOKAHEAD_COL] > df[BASELINE_COL]).astype(float)
-    missing = df[LOOKAHEAD_COL].isna() | df[BASELINE_COL].isna()
+    df = pd.read_csv(PIPELINE_PATH)
+    df = df.iloc[row_ids]
+    labels = (df["max_z_next5"] > 0).astype(float)  # up if positive, down if negative
+    missing = df["max_z_next5"].isna()
     labels[missing] = np.nan
     return labels.to_numpy()
 
@@ -118,7 +121,8 @@ def train(X_train, y_train, model):
     """
     scaler  = StandardScaler()
     X_train = scaler.fit_transform(X_train)
-    model.fit(X_train, y_train)
+    weights = compute_sample_weight('balanced', y_train)
+    model.fit(X_train, y_train, sample_weight=weights)
     return model, scaler
 
 def evaluate(model, scaler, X_test, y_test):
